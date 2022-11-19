@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.13;
 
 /**
@@ -28,12 +27,4 @@ interface IPriceFeed {
      * @return uint256 Price of the asset.
      */
     function getAssetPrice(address _asset) external view returns (uint256);
-
-    /**
-     * @dev Used to set the price feed source for a given asset.
-     *
-     * @param _asset Address of the asset.
-     * @param _source The price feed source of the asset.
-     */
-    function setAssetPriceFeedSource(address _asset, address _source) external;
 }

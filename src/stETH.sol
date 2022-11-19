@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "solmate/tokens/ERC20.sol";
 
 contract stETH is ERC20 {
-    constructor(address[] memory _holders) ERC20("stETH", "steTH", 18) {
+    constructor(address[] memory _holders) ERC20("stETH", "stETH", 18) {
         uint256 holdersLength = _holders.length;
 
         for (uint256 i = 0; i < holdersLength; i++) {

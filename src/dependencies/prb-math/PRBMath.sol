@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
 
 /// @notice Emitted when the result overflows uint256.
 error PRBMath__MulDivFixedPointOverflow(uint256 prod1);
