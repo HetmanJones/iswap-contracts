@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "./dependencies/prb-math/PRBMathUD60x18.sol";
 
+// @dev To make this contract ownable, so only the owner can update the parameters
 contract PriceModel {
     using PRBMathUD60x18 for uint256;
 

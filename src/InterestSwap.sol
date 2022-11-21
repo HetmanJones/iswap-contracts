@@ -81,18 +81,42 @@ contract InterestSwap {
         uint256 _amount,
         uint256 _daysTerm,
         Route memory route
-    ) public view returns (uint256) {
+    )
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
         // @dev verify the route supports that asset
         require(
             isAssetSupported[route.poolOwner][route.poolIndex][_asset],
             "Unsupported asset"
         );
 
-        Pool memory poolReference = pools[route.poolOwner][route.poolIndex];
+        uint256 collateralPrice = priceFeed.getAssetPrice(_asset);
+        uint256 collateralValueinUSDC = collateralPrice.mul(_amount);
 
-        uint256 price = poolReference.priceModel.quote(_amount, _daysTerm);
+        Pool storage poolReference = pools[route.poolOwner][route.poolIndex];
+        require(
+            collateralValueinUSDC <= poolReference.totalLiquidity,
+            "Not enough liquidity in the pool"
+        );
 
-        return price;
+        uint256 assetPercentageToCharge = poolReference.priceModel.quote(
+            _amount,
+            _daysTerm
+        );
+
+        // asset percentage to charge, amount to be received, collateralPrice
+        uint256 amounToBeSent = _amount - assetPercentageToCharge;
+        uint256 amounToBeSentInUSDC = (_amount - assetPercentageToCharge).mul(
+            collateralPrice
+        );
+
+        return (assetPercentageToCharge, amounToBeSent, amounToBeSentInUSDC);
     }
 
     function swap(
@@ -101,36 +125,21 @@ contract InterestSwap {
         uint256 _daysTerm,
         Route memory route
     ) external returns (uint256) {
-        // @dev price comes as a percentage of the asset in dollar value
-        uint256 percentageOfAmountToPay = quote(
+        (, , uint256 amounToBeSentInUSDC) = quote(
             _asset,
             _amount,
             _daysTerm,
             route
         );
-        uint256 price = priceFeed.getAssetPrice(_asset);
-        uint256 amountToSwap = price.mul(_amount);
-
-        Pool storage poolReference = pools[route.poolOwner][route.poolIndex];
-
-        require(
-            amountToSwap <= poolReference.totalLiquidity,
-            "Not enough liquidity in the pool"
-        );
-
-        // @dev amount to transfer would be => amount * price * percentageOfAmountToPay
-        uint256 amountOfStablesToPay = _amount.mul(price).mul(
-            percentageOfAmountToPay
-        );
 
         // transfer asset to this contract
         IERC20(_asset).transferFrom(msg.sender, address(this), _amount);
-        liquidityToken.transfer(msg.sender, amountOfStablesToPay);
+        liquidityToken.transfer(msg.sender, amounToBeSentInUSDC);
 
-        // update total liquidity
-        pools[route.poolOwner][route.poolIndex].totalLiquidity -= amountToSwap;
+        pools[route.poolOwner][route.poolIndex]
+            .totalLiquidity -= amounToBeSentInUSDC;
 
-        return amountOfStablesToPay;
+        return amounToBeSentInUSDC;
     }
 
     function getPool(address _lp, uint256 _index)

@@ -30,8 +30,6 @@ contract PriceModelTest is BaseTest {
         uint256 numberOfDays = 50 * 10**18;
         uint256 result = priceModelInstance.quote(10000 * 10**18, numberOfDays);
 
-        console.log("Result", result);
-
         assertEq(result, 5000 * 10**18);
 
         vm.stopPrank();

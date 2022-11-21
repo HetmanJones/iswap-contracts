@@ -127,9 +127,78 @@ contract PoolTest is BaseTest {
     }
 
     function testQuote() public {
-        // uint256 price = poolInstance.quote();
-        // assertEq(price, x);
+        vm.startPrank(lp1);
+
+        // approve first
+        usdcInstance.approve(
+            address(interestSwapInstance),
+            initialTotalLiquidity
+        );
+
+        // create pool
+        uint256 poolIndex = interestSwapInstance.createPool(
+            supportedTokens,
+            address(priceModelInstance),
+            initialTotalLiquidity
+        );
+
+        uint256 numberOfDays = 50 * 10**18;
+        uint256 amount = 1 * 10**18; // 1 stETH
+        InterestSwap.Route memory route = InterestSwap.Route(lp1, poolIndex);
+
+        (
+            uint256 assetPercentageToCharge,
+            uint256 amounToBeSent,
+            uint256 amounToBeSentInUSDC
+        ) = interestSwapInstance.quote(
+                address(stETHInstance),
+                amount,
+                numberOfDays,
+                route
+            );
+
+        assertEq(assetPercentageToCharge, 0.5 * 10**18);
+        assertEq(amounToBeSent, 0.5 * 10**18);
+        assertEq(amounToBeSentInUSDC, 500 * 10**18);
+
+        vm.stopPrank();
     }
 
-    function testSwap() public {}
+    function testSwap() public {
+        vm.startPrank(lp1);
+
+        // approve first
+        usdcInstance.approve(
+            address(interestSwapInstance),
+            initialTotalLiquidity
+        );
+
+        // create pool
+        uint256 poolIndex = interestSwapInstance.createPool(
+            supportedTokens,
+            address(priceModelInstance),
+            initialTotalLiquidity
+        );
+
+        vm.stopPrank();
+
+        vm.startPrank(borrower1);
+
+        uint256 numberOfDays = 50 * 10**18;
+        uint256 amount = 1 * 10**18; // 1 stETH
+        InterestSwap.Route memory route = InterestSwap.Route(lp1, poolIndex);
+
+        // approve first
+        stETHInstance.approve(address(interestSwapInstance), amount);
+
+        uint256 result = interestSwapInstance.swap(
+            address(stETHInstance),
+            amount,
+            numberOfDays,
+            route
+        );
+
+        assertEq(result, 500 * 10**18);
+        vm.stopPrank();
+    }
 }
