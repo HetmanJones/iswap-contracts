@@ -26,9 +26,6 @@ contract InterestSwapScript is Script {
         stNEAR stNEARInstance = new stNEAR(addresses);
         USDC usdcInstance = new USDC(addresses);
 
-        uint256 dailyPercent = 0.01 * 10**18;
-        PriceModel model = new PriceModel(dailyPercent);
-
         address fluxDataFeedForNEAR = 0x0a13BC1F3C441BCB165e8925Fe3E27d18d1Cd66C;
         address fluxDataFeedForETH = 0x842AF8074Fa41583E3720821cF1435049cf93565;
 
@@ -55,6 +52,10 @@ contract InterestSwapScript is Script {
 
         // deploy periphery
         new InterestSwapPeriphery(address(instance));
+
+        // create price model
+        uint256 dailyPercent = 0.0002 * 10**18;
+        instance.createPriceModel(dailyPercent);
 
         // do infinite approval
         usdcInstance.approve(address(instance), type(uint256).max);

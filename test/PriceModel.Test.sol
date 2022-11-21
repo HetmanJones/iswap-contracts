@@ -9,8 +9,8 @@ contract PriceModelTest is BaseTest {
     PriceModel public priceModelInstance;
 
     uint256 constant DECIMALS = 18;
-
-    uint256 public dailyFeePercentage = 0.01 * 10**18;
+    // 10% / 365 = 0.02 % => 0.0002 = 0.02 %
+    uint256 public dailyFeePercentage = 0.0002 * 10**18;
 
     function setUp() public {
         // run to have accounts ready
@@ -30,7 +30,7 @@ contract PriceModelTest is BaseTest {
         uint256 numberOfDays = 50 * 10**18;
         uint256 result = priceModelInstance.quote(10000 * 10**18, numberOfDays);
 
-        assertEq(result, 5000 * 10**18);
+        assertEq(result, 100 * 10**18);
 
         vm.stopPrank();
     }

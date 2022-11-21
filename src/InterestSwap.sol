@@ -34,6 +34,9 @@ contract InterestSwap {
     mapping(address => mapping(uint256 => mapping(address => bool)))
         public isAssetSupported;
 
+    // @dev This could be extended to more templates and include validation
+    address[] public priceModels;
+
     event PoolCreated(
         address indexed owner,
         address[] acceptedTokens,
@@ -140,6 +143,15 @@ contract InterestSwap {
             .totalLiquidity -= amounToBeSentInUSDC;
 
         return amounToBeSentInUSDC;
+    }
+
+    function createPriceModel(uint256 _dailyFeePercentage)
+        external
+        returns (address)
+    {
+        PriceModel newPriceModel = new PriceModel(_dailyFeePercentage);
+        priceModels.push(address(newPriceModel));
+        return address(newPriceModel);
     }
 
     function getPool(address _lp, uint256 _index)
