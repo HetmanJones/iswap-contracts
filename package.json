@@ -10,6 +10,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "deploy:aurora": "hardhat --network aurora-testnet deploy"
+    "deploy:aurora": "hardhat --network aurora-testnet deploy",
+    "deploy:aurora:reset": "hardhat --network aurora-testnet deploy --reset"
   }
 }

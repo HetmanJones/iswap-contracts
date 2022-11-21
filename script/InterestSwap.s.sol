@@ -54,8 +54,8 @@ contract InterestSwapScript is Script {
         new InterestSwapPeriphery(address(instance));
 
         // create price model
-        uint256 dailyPercent = 0.0002 * 10**18;
-        instance.createPriceModel(dailyPercent);
+        // uint256 dailyPercent = 0.0002 * 10**18;
+        // instance.createPriceModel(dailyPercent);
 
         // do infinite approval
         usdcInstance.approve(address(instance), type(uint256).max);

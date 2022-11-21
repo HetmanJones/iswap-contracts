@@ -7,7 +7,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    const addreses = ["0x93993F6915Dbf72C21799A0Dbd85471Ee5B3c372", "0x546874b6fAbDdD1347CF08D35e2c8BedCe30471f"]
+    const addreses = ["0x93993F6915Dbf72C21799A0Dbd85471Ee5B3c372", "0x546874b6fAbDdD1347CF08D35e2c8BedCe30471f", "0x407C12D39b01E50Cf8a25d41fd349743193D082C", "0x23BF95De9F90338F973056351C8Cd2CB78cbe52f"]
 
     const usdcResult = await deploy("USDC", {
         from: deployer,
@@ -52,21 +52,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
 
     // create price model
-    const interestSwapInstance = await hre.ethers.getContractAt(
+    const interestSwapInstance = await hre.ethers.getContract(
         "InterestSwap",
-        interestSwapResult.address
+        deployer
     );
-
-    const dailyPercent = BigNumber.from(0.0002 * 10 ** 18);
-    await interestSwapInstance.createPriceModel(dailyPercent);
 
     // do infinite approval
-    const usdcInstance = await hre.ethers.getContractAt(
+    const usdcInstance = await hre.ethers.getContract(
         "USDC",
-        usdcResult.address
+        deployer
     );
 
-    usdcInstance.approve(interestSwapInstance.address, ethers.constants.MaxUint256);
+    const tx1 = await usdcInstance.approve(interestSwapResult.address, ethers.constants.MaxUint256);
+    await tx1.wait()
+    // create sample pool
+    const dailyPercent = BigNumber.from(0.0002 * 10 ** 18);
+    console.log("Daily percent", dailyPercent.toString())
+
+    const initialTotalLiquidity = BigNumber.from("10000000000000000000000");
+    console.log("initialTotalLiquidity", initialTotalLiquidity.toString())
+
+    console.log("Accepted tokens", [stETHResult.address, stNEARResult.address]);
+
+    const tx2 = await interestSwapInstance.createPool([stETHResult.address, stNEARResult.address], dailyPercent, initialTotalLiquidity);
+
+    tx2.wait()
 
     console.log("InterestSwap Periphery Address", interestSwapPeripheryResult.address)
 };

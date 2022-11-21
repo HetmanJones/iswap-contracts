@@ -3,9 +3,9 @@ pragma solidity ^0.8.13;
 
 import "./BaseTest.sol";
 
-import "../src/stNEAR.sol";
-import "../src/stETH.sol";
-import "../src/USDC.sol";
+import {stNEAR} from "../src/stNEAR.sol";
+import {stETH} from "../src/stETH.sol";
+import {USDC} from "../src/USDC.sol";
 
 import "../src/PriceModel.sol";
 import "../src/InterestSwap.sol";
@@ -24,7 +24,6 @@ contract PoolTest is BaseTest {
     stNEAR public stNEARInstance;
     USDC public usdcInstance;
 
-    PriceModel public priceModelInstance;
     IPriceFeed public priceFeedInstance;
 
     // more
@@ -33,6 +32,8 @@ contract PoolTest is BaseTest {
     address[] public addresses;
 
     address[] public supportedTokens;
+
+    uint256 dailyPercent = 0.01 * 10**18;
 
     function setUp() public {
         // run to have accounts ready
@@ -47,10 +48,6 @@ contract PoolTest is BaseTest {
         usdcInstance = new USDC(addresses);
 
         supportedTokens = [address(stETHInstance), address(stNEARInstance)];
-
-        // price model
-        uint256 dailyPercent = 0.01 * 10**18;
-        priceModelInstance = new PriceModel(dailyPercent);
 
         // price feed
         priceFeedInstance = new MockPriceFeed();
@@ -89,18 +86,15 @@ contract PoolTest is BaseTest {
         );
 
         // create pool
-        uint256 poolIndex = interestSwapInstance.createPool(
-            supportedTokens,
-            address(priceModelInstance),
-            initialTotalLiquidity
-        );
+        (uint256 poolIndex, address priceModel) = interestSwapInstance
+            .createPool(supportedTokens, dailyPercent, initialTotalLiquidity);
 
         InterestSwapPeriphery.PoolInfo memory result = interestSwapPeriphery
             .getPool(lp1, poolIndex);
 
         // assert specific pool
         assertEq(result.totalLiquidity, initialTotalLiquidity);
-        assertEq(address(result.priceModel), address(priceModelInstance));
+        assertEq(address(result.priceModel), address(priceModel));
 
         assertEq(result.acceptedTokens.length, 2);
 
@@ -136,9 +130,9 @@ contract PoolTest is BaseTest {
         );
 
         // create pool
-        uint256 poolIndex = interestSwapInstance.createPool(
+        (uint256 poolIndex, ) = interestSwapInstance.createPool(
             supportedTokens,
-            address(priceModelInstance),
+            dailyPercent,
             initialTotalLiquidity
         );
 
@@ -174,9 +168,9 @@ contract PoolTest is BaseTest {
         );
 
         // create pool
-        uint256 poolIndex = interestSwapInstance.createPool(
+        (uint256 poolIndex, ) = interestSwapInstance.createPool(
             supportedTokens,
-            address(priceModelInstance),
+            dailyPercent,
             initialTotalLiquidity
         );
 

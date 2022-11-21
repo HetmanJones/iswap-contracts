@@ -38,7 +38,7 @@ contract InterestSwap {
     event PoolCreated(
         address indexed owner,
         address[] acceptedTokens,
-        PriceModel priceModel,
+        address priceModel,
         uint256 totalLiquidity
     );
 
@@ -49,14 +49,16 @@ contract InterestSwap {
 
     function createPool(
         address[] memory _acceptedTokens,
-        address _priceModel,
+        uint256 _dailyFeePercentage,
         uint256 _initialLiquidity
-    ) external returns (uint256) {
+    ) external returns (uint256, address) {
         uint256 totalTokens = _acceptedTokens.length;
         uint256 newPoolIndex = pools[msg.sender].length;
 
+        address newPriceModel = createPriceModel(_dailyFeePercentage);
+
         pools[msg.sender].push(
-            Pool(_acceptedTokens, _initialLiquidity, PriceModel(_priceModel))
+            Pool(_acceptedTokens, _initialLiquidity, PriceModel(newPriceModel))
         );
 
         for (uint256 i = 0; i < totalTokens; i++) {
@@ -71,7 +73,15 @@ contract InterestSwap {
             address(this),
             _initialLiquidity
         );
-        return newPoolIndex;
+
+        emit PoolCreated(
+            msg.sender,
+            _acceptedTokens,
+            newPriceModel,
+            _initialLiquidity
+        );
+
+        return (newPoolIndex, newPriceModel);
     }
 
     function quote(
@@ -130,18 +140,18 @@ contract InterestSwap {
             route
         );
 
+        pools[route.poolOwner][route.poolIndex]
+            .totalLiquidity -= amounToBeSentInUSDC;
+
         // transfer asset to this contract
         IERC20(_asset).transferFrom(msg.sender, address(this), _amount);
         liquidityToken.transfer(msg.sender, amounToBeSentInUSDC);
-
-        pools[route.poolOwner][route.poolIndex]
-            .totalLiquidity -= amounToBeSentInUSDC;
 
         return amounToBeSentInUSDC;
     }
 
     function createPriceModel(uint256 _dailyFeePercentage)
-        external
+        internal
         returns (address)
     {
         PriceModel newPriceModel = new PriceModel(_dailyFeePercentage);
