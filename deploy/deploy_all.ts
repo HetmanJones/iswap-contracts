@@ -66,15 +66,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const tx1 = await usdcInstance.approve(interestSwapResult.address, ethers.constants.MaxUint256);
     await tx1.wait()
     // create sample pool
-    const dailyPercent = BigNumber.from(0.0002 * 10 ** 18);
+    const dailyPercent = BigNumber.from("200000000000000") // 0.0002 %
     console.log("Daily percent", dailyPercent.toString())
 
+    const maxDuration = BigNumber.from("30000000000000000000");
     const initialTotalLiquidity = BigNumber.from("10000000000000000000000");
     console.log("initialTotalLiquidity", initialTotalLiquidity.toString())
 
     console.log("Accepted tokens", [stETHResult.address, stNEARResult.address]);
 
-    const tx2 = await interestSwapInstance.createPool([stETHResult.address, stNEARResult.address], dailyPercent, initialTotalLiquidity);
+    const tx2 = await interestSwapInstance.createPool([stETHResult.address, stNEARResult.address], dailyPercent, initialTotalLiquidity, maxDuration);
 
     tx2.wait()
 

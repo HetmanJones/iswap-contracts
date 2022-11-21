@@ -34,6 +34,7 @@ contract PoolTest is BaseTest {
     address[] public supportedTokens;
 
     uint256 dailyPercent = 0.01 * 10**18;
+    uint256 maxDuration = 30 * 10**18;
 
     function setUp() public {
         // run to have accounts ready
@@ -87,7 +88,12 @@ contract PoolTest is BaseTest {
 
         // create pool
         (uint256 poolIndex, address priceModel) = interestSwapInstance
-            .createPool(supportedTokens, dailyPercent, initialTotalLiquidity);
+            .createPool(
+                supportedTokens,
+                dailyPercent,
+                initialTotalLiquidity,
+                maxDuration
+            );
 
         InterestSwapPeriphery.PoolInfo memory result = interestSwapPeriphery
             .getPool(lp1, poolIndex);
@@ -133,7 +139,8 @@ contract PoolTest is BaseTest {
         (uint256 poolIndex, ) = interestSwapInstance.createPool(
             supportedTokens,
             dailyPercent,
-            initialTotalLiquidity
+            initialTotalLiquidity,
+            maxDuration
         );
 
         uint256 numberOfDays = 50 * 10**18;
@@ -171,7 +178,8 @@ contract PoolTest is BaseTest {
         (uint256 poolIndex, ) = interestSwapInstance.createPool(
             supportedTokens,
             dailyPercent,
-            initialTotalLiquidity
+            initialTotalLiquidity,
+            maxDuration
         );
 
         vm.stopPrank();

@@ -39,7 +39,10 @@ contract InterestSwap {
         address indexed owner,
         address[] acceptedTokens,
         address priceModel,
-        uint256 totalLiquidity
+        uint256 totalLiquidity,
+        uint256 newPoolIndex,
+        uint256 maxDuration,
+        uint256 dailyFeePercentage
     );
 
     constructor(address _priceFeed, address _liquidityToken) {
@@ -50,7 +53,8 @@ contract InterestSwap {
     function createPool(
         address[] memory _acceptedTokens,
         uint256 _dailyFeePercentage,
-        uint256 _initialLiquidity
+        uint256 _initialLiquidity,
+        uint256 _maxDuration
     ) external returns (uint256, address) {
         uint256 totalTokens = _acceptedTokens.length;
         uint256 newPoolIndex = pools[msg.sender].length;
@@ -78,7 +82,10 @@ contract InterestSwap {
             msg.sender,
             _acceptedTokens,
             newPriceModel,
-            _initialLiquidity
+            _initialLiquidity,
+            newPoolIndex,
+            _maxDuration,
+            _dailyFeePercentage
         );
 
         return (newPoolIndex, newPriceModel);
