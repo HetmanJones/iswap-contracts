@@ -81,7 +81,7 @@ contract InterestSwap {
         uint256 _amount,
         uint256 _daysTerm,
         Route memory route
-    ) public returns (uint256) {
+    ) public view returns (uint256) {
         // @dev verify the route supports that asset
         require(
             isAssetSupported[route.poolOwner][route.poolIndex][_asset],

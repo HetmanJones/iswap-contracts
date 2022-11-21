@@ -49,7 +49,8 @@ contract PoolTest is BaseTest {
         supportedTokens = [address(stETHInstance), address(stNEARInstance)];
 
         // price model
-        priceModelInstance = new PriceModel();
+        uint256 dailyPercent = 0.01 * 10**18;
+        priceModelInstance = new PriceModel(dailyPercent);
 
         // price feed
         priceFeedInstance = new MockPriceFeed();

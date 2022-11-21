@@ -19,13 +19,15 @@ contract InterestSwapScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         address[] memory addresses = new address[](2);
-        addresses[0] = 0x93993F6915Dbf72C21799A0Dbd85471Ee5B3c372; // LP
-        addresses[1] = 0x546874b6fAbDdD1347CF08D35e2c8BedCe30471f; // Swapper
+        addresses[0] = 0x93993F6915Dbf72C21799A0Dbd85471Ee5B3c372; // Swapper // deployer too
+        addresses[1] = 0x546874b6fAbDdD1347CF08D35e2c8BedCe30471f; // LP
 
         stETH stETHInstance = new stETH(addresses);
         stNEAR stNEARInstance = new stNEAR(addresses);
         USDC usdcInstance = new USDC(addresses);
-        PriceModel model = new PriceModel();
+
+        uint256 dailyPercent = 0.01 * 10**18;
+        PriceModel model = new PriceModel(dailyPercent);
 
         address fluxDataFeedForNEAR = 0x0a13BC1F3C441BCB165e8925Fe3E27d18d1Cd66C;
         address fluxDataFeedForETH = 0x842AF8074Fa41583E3720821cF1435049cf93565;
@@ -53,6 +55,9 @@ contract InterestSwapScript is Script {
 
         // deploy periphery
         new InterestSwapPeriphery(address(instance));
+
+        // do infinite approval
+        usdcInstance.approve(address(instance), type(uint256).max);
 
         vm.stopBroadcast();
         vm.broadcast();
