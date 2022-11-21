@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "solmate/tokens/ERC20.sol";
+import "./dependencies/solmate/ERC20.sol";
 
 contract stETH is ERC20 {
     constructor(address[] memory _holders) ERC20("stETH", "stETH", 18) {

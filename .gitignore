@@ -12,3 +12,6 @@ out/
 TODO*
 .env.aurora
 .env.goerli
+
+# Node Specific
+node_modules

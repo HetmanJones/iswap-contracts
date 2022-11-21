@@ -7,8 +7,6 @@ import {IERC20} from "./interfaces/IERC20.sol";
 
 import {PriceModel} from "./PriceModel.sol";
 
-import "forge-std/console.sol";
-
 contract InterestSwap {
     using PRBMathUD60x18 for uint256;
 
@@ -56,9 +54,6 @@ contract InterestSwap {
     ) external returns (uint256) {
         uint256 totalTokens = _acceptedTokens.length;
         uint256 newPoolIndex = pools[msg.sender].length;
-
-        console.log("totalTokens", totalTokens);
-        console.log("newPoolIndex", newPoolIndex);
 
         pools[msg.sender].push(
             Pool(_acceptedTokens, _initialLiquidity, PriceModel(_priceModel))
